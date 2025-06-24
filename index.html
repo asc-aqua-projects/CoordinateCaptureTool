@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ASC Coordinate Capture Tool</title>
+  <title>ASC Coordinate Tool</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
   <style>
     html, body {
@@ -48,8 +48,15 @@
       background: #e6f9f8;
       border-top: 1px solid #00B3A9;
       display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #coords-top {
+      display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
       gap: 10px;
     }
 
@@ -73,6 +80,11 @@
       background: #009189;
     }
 
+    .hint {
+      font-size: 0.8rem;
+      color: #555;
+    }
+
     @media (max-width: 600px) {
       header h1 {
         font-size: 1rem;
@@ -82,7 +94,7 @@
         height: 30px;
       }
 
-      #coords {
+      #coords-top {
         flex-direction: column;
         align-items: flex-start;
       }
@@ -98,17 +110,19 @@
 <body>
 
   <header>
-    <h1>ASC Coordinate Capture Tool</h1>
+    <h1>ASC Coordinate Tool</h1>
     <img src="ASC_Logo_ENG_Landscape_RGB.jpg" alt="ASC Logo">
   </header>
 
   <div id="map-container">
     <div id="map"></div>
     <div id="coords">
-      <span id="coordText">Click the map to get coordinates</span>
-      <div id="buttonGroup">
-        <button id="copyBtn" disabled>Copy Coords</button>
-        <button id="shareBtn" disabled>Share</button>
+      <div id="coords-top">
+        <span id="coordText">Click the map to get coordinates</span>
+        <div id="buttonGroup">
+          <button id="copyBtn" disabled title="Copies coordinates like 'Lat = 48.85, Lon = 2.29'">📋 Copy Coordinates</button>
+          <button id="shareBtn" disabled title="Copies a link you can share to open this same view">🔗 Copy Share Link</button>
+        </div>
       </div>
     </div>
   </div>
@@ -169,7 +183,6 @@
       const lonStr = lon.toFixed(6);
       coordText.textContent = `Longitude: ${lonStr}, Latitude: ${latStr}`;
 
-      // Enable buttons
       shareBtn.disabled = false;
       copyBtn.disabled = false;
 
@@ -177,16 +190,16 @@
         const zoom = view.getZoom().toFixed(0);
         const url = `${window.location.origin}${window.location.pathname}?lon=${lonStr}&lat=${latStr}&zoom=${zoom}`;
         navigator.clipboard.writeText(url).then(() => {
-          shareBtn.textContent = "Copied!";
-          setTimeout(() => (shareBtn.textContent = "Share"), 1500);
+          shareBtn.textContent = "✅ Copied!";
+          setTimeout(() => (shareBtn.textContent = "🔗 Copy Share Link"), 1500);
         });
       };
 
       copyBtn.onclick = () => {
         const coordString = `Lat = ${latStr}, Lon = ${lonStr}`;
         navigator.clipboard.writeText(coordString).then(() => {
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => (copyBtn.textContent = "Copy Coords"), 1500);
+          copyBtn.textContent = "✅ Copied!";
+          setTimeout(() => (copyBtn.textContent = "📋 Copy Coordinates"), 1500);
         });
       };
     }
