@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>ASC Coordinate Tool</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -34,7 +36,8 @@
     #map-container {
       display: flex;
       flex-direction: column;
-      height: calc(100% - 60px); /* Adjusted for header */
+      height: calc(100% - 60px);
+      /* Adjusted for header */
     }
 
     #map {
@@ -45,8 +48,9 @@
     #coords {
       padding: 10px 20px;
       font-size: 0.95rem;
-      background: #e6f9f8;
-      border-top: 1px solid #00B3A9;
+      background: #00B3A9;
+      color: white;
+      border-top: 1px solid #008a83;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -67,22 +71,38 @@
 
     #shareBtn,
     #copyBtn {
-      background: #00B3A9;
-      color: white;
-      border: none;
+      background: white;
+      color: #00B3A9;
+      border: 2px solid #00B3A9;
       border-radius: 4px;
       padding: 6px 12px;
       cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease-in-out;
+      box-shadow: none;
     }
 
     #shareBtn:hover,
     #copyBtn:hover {
-      background: #009189;
+      background: #ffffff;
+      color: #007e77;
+      border-color: #007e77;
+      box-shadow: 0 0 0 3px rgba(0, 179, 169, 0.2);
+    }
+
+    #shareBtn:disabled,
+    #copyBtn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: white;
+      color: #00B3A9;
+      border: 2px dashed #00B3A9;
+      box-shadow: none;
     }
 
     .hint {
       font-size: 0.8rem;
-      color: #555;
+      color: white;
     }
 
     @media (max-width: 600px) {
@@ -107,6 +127,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <header>
@@ -120,8 +141,10 @@
       <div id="coords-top">
         <span id="coordText">Click the map to get coordinates</span>
         <div id="buttonGroup">
-          <button id="copyBtn" disabled title="Copies coordinates like 'Lat = 48.85, Lon = 2.29'">📋 Copy Coordinates</button>
-          <button id="shareBtn" disabled title="Copies a link you can share to open this same view">🔗 Copy Share Link</button>
+          <button id="copyBtn" disabled title="Copies coordinates like 'Lat = 48.85, Lon = 2.29'">📋 Copy
+            Coordinates</button>
+          <button id="shareBtn" disabled title="Copies a link you can share to open this same view">🔗 Copy Share
+            Link</button>
         </div>
       </div>
     </div>
@@ -204,14 +227,21 @@
       };
     }
 
+    let initialLon = 0;
+    let initialLat = 0;
+
+    // Use URL params if available
     if (!isNaN(lonParam) && !isNaN(latParam)) {
-      const marker = new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.fromLonLat([lonParam, latParam]))
-      });
-      markerSource.addFeature(marker);
-      setCoordinates(lonParam, latParam);
+      initialLon = lonParam;
+      initialLat = latParam;
     }
 
+    // Add default or param-based marker at start
+    const initialMarker = new ol.Feature({
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([initialLon, initialLat]))
+    });
+    markerSource.addFeature(initialMarker);
+    setCoordinates(initialLon, initialLat);
     map.on('click', function (evt) {
       const [lon, lat] = ol.proj.toLonLat(evt.coordinate);
       markerSource.clear();
@@ -223,4 +253,5 @@
     });
   </script>
 </body>
+
 </html>
