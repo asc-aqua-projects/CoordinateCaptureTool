@@ -1,4 +1,5 @@
 # CoordinateCaptureTool
+This code is not intended for reuse. Please do not redistribute or fork.
 
 # ASC Map Viewer
 
