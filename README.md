@@ -20,7 +20,7 @@ This is a simple interactive web map built with [OpenLayers](https://openlayers.
 
 ## Credits
 
-- **OpenLayers** – This map uses [OpenLayers](https://openlayers.org/) for all mapping and interaction features. It’s an excellent open-source library for web-based GIS and mapping.
-- **Esri World Imagery** – The satellite imagery comes from [Esri’s World Imagery service](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9), accessed via their public tile API.
-- **ASC Branding** – Styling, color scheme (`#00B3A9`), and logo are based on ASC’s official visual identity. Logo file: `ASC_Logo_ENG_Landscape_RGB.jpg`.
-- **Clipboard API** – The “Share” and “Copy Coords” buttons use the [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API) built into modern browsers.
+- **OpenLayers** – This map uses [OpenLayers](https://openlayers.org/) for all mapping and interaction features.
+- **Esri World Imagery** – The satellite imagery comes from [Esri’s World Imagery service](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9), accessed via  public tile API.
+- **ASC Branding** – Styling, color scheme (`#00B3A9`), and logo are based on ASC’s official visual identity.
+- **Clipboard API** – The “Share” and “Copy Coords” buttons use the [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API).
