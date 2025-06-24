@@ -2,35 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OpenLayers ESRI Map with Pin Marker</title>
+  <title>ASC Coordinate Capture Tool</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      width: 100%;
+      font-family: "Segoe UI", sans-serif;
+      background: #f9f9f9;
     }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: #00B3A9;
+      color: white;
+    }
+
+    header img {
+      height: 36px;
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    #map-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 60px); /* Adjusted for header height */
+    }
+
     #map {
+      flex: 1;
       width: 100%;
-      height: 90%;
     }
+
     #coords {
-      height: 10%;
-      padding: 10px;
-      font-family: sans-serif;
-      background: #f8f8f8;
-      border-top: 1px solid #ccc;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      background: #e6f9f8;
+      border-top: 1px solid #00B3A9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #shareBtn {
+      background: #00B3A9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    #shareBtn:hover {
+      background: #009189;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1rem;
+      }
+
+      header img {
+        height: 30px;
+      }
+
+      #coords {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="coords">Click the map to see coordinates</div>
+
+  <header>
+    <h1>ASC Coordinate CApture Tool</h1>
+    <img src="ASC_Logo_ENG_Landscape_RGB.jpg" alt="ASC Logo">
+  </header>
+
+  <div id="map-container">
+    <div id="map"></div>
+    <div id="coords">
+      <span id="coordText">Click the map to get coordinates</span>
+      <button id="shareBtn" disabled>Share</button>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/ol@7.3.0/dist/ol.js"></script>
   <script>
-    // ESRI basemap
+    const params = new URLSearchParams(window.location.search);
+    const lonParam = parseFloat(params.get('lon'));
+    const latParam = parseFloat(params.get('lat'));
+    const zoomParam = parseInt(params.get('zoom'));
+
     const esriLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
         url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -38,7 +111,6 @@
       })
     });
 
-    // SVG pin marker as data URL (color: #00B3A9)
     const pinSVG = `
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="40" viewBox="0 0 24 40">
         <path fill="#00B3A9" d="M12 0C5.372 0 0 5.372 0 12c0 9.333 12 28 12 28s12-18.667 12-28C24 5.372 18.628 0 12 0z"/>
@@ -61,10 +133,10 @@
       style: markerStyle
     });
 
-    const view = new ol.View({
-      center: ol.proj.fromLonLat([0, 0]),
-      zoom: 2
-    });
+    const center = (!isNaN(lonParam) && !isNaN(latParam)) ? ol.proj.fromLonLat([lonParam, latParam]) : ol.proj.fromLonLat([0, 0]);
+    const zoom = zoomParam || 2;
+
+    const view = new ol.View({ center: center, zoom: zoom });
 
     const map = new ol.Map({
       target: 'map',
@@ -72,17 +144,38 @@
       view: view
     });
 
-    const coordsBox = document.getElementById('coords');
+    const coordText = document.getElementById('coordText');
+    const shareBtn = document.getElementById('shareBtn');
+
+    function setCoordinates(lon, lat) {
+      coordText.textContent = `Longitude: ${lon.toFixed(6)}, Latitude: ${lat.toFixed(6)}`;
+      shareBtn.disabled = false;
+      shareBtn.onclick = () => {
+        const zoom = view.getZoom().toFixed(0);
+        const url = `${window.location.origin}${window.location.pathname}?lon=${lon.toFixed(6)}&lat=${lat.toFixed(6)}&zoom=${zoom}`;
+        navigator.clipboard.writeText(url).then(() => {
+          shareBtn.textContent = "Copied!";
+          setTimeout(() => (shareBtn.textContent = "Share"), 1500);
+        });
+      };
+    }
+
+    if (!isNaN(lonParam) && !isNaN(latParam)) {
+      const marker = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([lonParam, latParam]))
+      });
+      markerSource.addFeature(marker);
+      setCoordinates(lonParam, latParam);
+    }
 
     map.on('click', function (evt) {
       const [lon, lat] = ol.proj.toLonLat(evt.coordinate);
-      coordsBox.textContent = `Longitude: ${lon.toFixed(6)}, Latitude: ${lat.toFixed(6)}`;
-
       markerSource.clear();
       const marker = new ol.Feature({
         geometry: new ol.geom.Point(evt.coordinate)
       });
       markerSource.addFeature(marker);
+      setCoordinates(lon, lat);
     });
   </script>
 </body>
