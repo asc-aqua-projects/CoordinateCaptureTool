@@ -6,11 +6,9 @@ This is a simple interactive web map built with [OpenLayers](https://openlayers.
 
 ## Features
 
-- 📍 Drop a pin by clicking the map
-- 📋 Copy coordinates in plain text format (e.g., `Lat = ..., Lon = ...`)
-- 🔗 Generate a shareable link that opens the map with your pin and zoom level
-- ✅ Clean and responsive design
-- 🖼️ Includes ASC branding and colors
+- Drop a pin by clicking the map
+- Copy coordinates in plain text format (e.g., `Lat = ..., Lon = ...`)
+- Generate a shareable link that opens the map with your pin and zoom level
 
 ## How to Use
 
