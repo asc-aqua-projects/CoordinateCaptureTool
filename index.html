@@ -308,7 +308,7 @@
 
       shareBtn.onclick = () => {
         const zoom = view.getZoom().toFixed(0);
-        const url = `${window.location.origin}${window.location.pathname}?lon=${lonStr}&lat=${latStr}&zoom=${zoom}`;
+        const url = `${window.location.origin}${window.location.pathname}?lon=${lonStr}&lat=${latStr}&zoom=7`;
         navigator.clipboard.writeText(url).then(() => {
           shareBtn.textContent = "✅ Copied!";
           setTimeout(() => (shareBtn.textContent = "🔗 Copy Share Link"), 1500);
