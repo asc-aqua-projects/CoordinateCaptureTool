@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>ASC Coordinate Tool</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.3.0/ol.css">
   <style>
@@ -15,7 +16,6 @@
       font-family: "Segoe UI", sans-serif;
       display: flex;
       flex-direction: column;
-      background: #f9f9f9;
     }
 
     #main {
@@ -111,15 +111,9 @@
       box-shadow: none;
     }
 
-    .hint {
-      font-size: 0.8rem;
-      color: white;
-    }
-
     #info-float {
       position: absolute;
-      bottom: 80px;
-      /* moved up to clear the #coords section */
+      bottom: 90px;
       left: 10px;
       background: #00B3A9;
       color: white;
@@ -136,30 +130,52 @@
     }
 
     @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
       header h1 {
         font-size: 1rem;
       }
 
       header img {
-        height: 30px;
+        height: 28px;
+      }
+
+      #coords {
+        font-size: 0.9rem;
+        padding: 10px;
       }
 
       #coords-top {
         flex-direction: column;
         align-items: flex-start;
+        gap: 8px;
       }
 
       #buttonGroup {
+        flex-direction: column;
         width: 100%;
-        justify-content: flex-start;
-        flex-wrap: wrap;
+      }
+
+      #copyBtn,
+      #shareBtn {
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 8px;
+      }
+
+      #info-float {
+        bottom: 130px;
+        /* higher to clear buttons */
       }
     }
   </style>
 </head>
 
 <body>
-
   <div id="main">
     <header>
       <h1>ASC Coordinate Tool</h1>
@@ -182,6 +198,9 @@
     </div>
   </div>
 
+  <div id="info-float" title="This map is for informational use only. No personal data is collected or stored. © ASC">❔
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/ol@7.3.0/dist/ol.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -190,7 +209,6 @@
     let latParam = parseFloat(params.get('lat'));
     let zoomParam = parseInt(params.get('zoom'));
 
-    // Sanitize inputs
     if (isNaN(latParam) || latParam < -90 || latParam > 90) latParam = null;
     if (isNaN(lonParam) || lonParam < -180 || lonParam > 180) lonParam = null;
     if (isNaN(zoomParam) || zoomParam < 1 || zoomParam > 20) zoomParam = null;
@@ -224,11 +242,8 @@
       style: markerStyle
     });
 
-    const initialLon = lonParam ?? 0;
-    const initialLat = latParam ?? 0;
-
     const view = new ol.View({
-      center: ol.proj.fromLonLat([initialLon, initialLat]),
+      center: (!isNaN(lonParam) && !isNaN(latParam)) ? ol.proj.fromLonLat([lonParam, latParam]) : ol.proj.fromLonLat([0, 0]),
       zoom: zoomParam || 2
     });
 
@@ -243,6 +258,13 @@
     const copyBtn = document.getElementById('copyBtn');
 
     function setCoordinates(lon, lat) {
+      if (typeof lon !== 'number' || typeof lat !== 'number' || isNaN(lon) || isNaN(lat)) {
+        coordText.textContent = "Invalid coordinates";
+        shareBtn.disabled = true;
+        copyBtn.disabled = true;
+        return;
+      }
+
       const latStr = lat.toFixed(6);
       const lonStr = lon.toFixed(6);
       coordText.textContent = `Longitude: ${lonStr}, Latitude: ${latStr}`;
@@ -252,7 +274,7 @@
 
       shareBtn.onclick = () => {
         const zoom = view.getZoom().toFixed(0);
-        const url = `${window.location.origin}${window.location.pathname}?lon=${lonStr}&lat=${latStr}&zoom=8`;
+        const url = `${window.location.origin}${window.location.pathname}?lon=${lonStr}&lat=${latStr}&zoom=${zoom}`;
         navigator.clipboard.writeText(url).then(() => {
           shareBtn.textContent = "✅ Copied!";
           setTimeout(() => (shareBtn.textContent = "🔗 Copy Share Link"), 1500);
@@ -268,24 +290,31 @@
       };
     }
 
-    const marker = new ol.Feature({
+
+    let initialLon = 0;
+    let initialLat = 0;
+
+    if (!isNaN(lonParam) && !isNaN(latParam)) {
+      initialLon = lonParam;
+      initialLat = latParam;
+    }
+
+    const initialMarker = new ol.Feature({
       geometry: new ol.geom.Point(ol.proj.fromLonLat([initialLon, initialLat]))
     });
-    markerSource.addFeature(marker);
+    markerSource.addFeature(initialMarker);
     setCoordinates(initialLon, initialLat);
 
     map.on('click', function (evt) {
       const [lon, lat] = ol.proj.toLonLat(evt.coordinate);
       markerSource.clear();
-      const newMarker = new ol.Feature({
+      const marker = new ol.Feature({
         geometry: new ol.geom.Point(evt.coordinate)
       });
-      markerSource.addFeature(newMarker);
+      markerSource.addFeature(marker);
       setCoordinates(lon, lat);
     });
   </script>
-  <div id="info-float" title="This map is for informational use only. No personal data is collected or stored. © ASC">❔
-  </div>
 </body>
 
 </html>
